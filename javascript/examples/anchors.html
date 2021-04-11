@@ -13,38 +13,38 @@
 	<script type="text/javascript" src="../src/js/mxClient.js"></script>
 	<script type="text/javascript">
 		// Overridden to define per-shape connection points
-		mxGraph.prototype.getAllConnectionConstraints = function(terminal, source){
-			if (terminal != null && terminal.shape != null) {
-				if (terminal.shape.stencil != null){
-					if (terminal.shape.stencil.constraints != null){
-						return terminal.shape.stencil.constraints;
-					}
-				}
-				else if (terminal.shape.constraints != null){
-					return terminal.shape.constraints;
-				}
-			}
-			return null;
-		};
+		// mxGraph.prototype.getAllConnectionConstraints = function(terminal, source){
+		// 	if (terminal != null && terminal.shape != null) {
+		// 		if (terminal.shape.stencil != null){
+		// 			if (terminal.shape.stencil.constraints != null){
+		// 				return terminal.shape.stencil.constraints;
+		// 			}
+		// 		}
+		// 		else if (terminal.shape.constraints != null){
+		// 			return terminal.shape.constraints;
+		// 		}
+		// 	}
+		// 	return null;
+		// };
 	
 		// Defines the default constraints for all shapes
-		mxShape.prototype.constraints = [
-				new mxConnectionConstraint(new mxPoint(0.25, 0), true),
-										 new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-										 new mxConnectionConstraint(new mxPoint(0.75, 0), true),
-		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.25), true),
-		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.75), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.25), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.75), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(0.25, 1), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(0.5, 1), true),
-		        	            		 new mxConnectionConstraint(new mxPoint(0.75, 1), true)
-		];
+		// mxShape.prototype.constraints = [
+		// 		new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+		// 								 new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+		// 								 new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+		//         	              		 new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+		//         	              		 new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+		//         	              		 new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+		//         	            		 new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+		// ];
 		
 		// Edges have no connection points
-		mxPolyline.prototype.constraints = null;
+		// mxPolyline.prototype.constraints = null;
 
 		// Program starts here. Creates a sample graph in the
 		// DOM node with the specified ID. This function is invoked
@@ -60,14 +60,21 @@
 			else
 			{
 				// Disables the built-in context menu
-				mxEvent.disableContextMenu(container);
+				// mxEvent.disableContextMenu(container);
 
 				// Creates the graph inside the given container
 				var graph = new mxGraph(container);
 				
 				// Enables rubberband selection
-				new mxRubberband(graph);
-				
+				// new mxRubberband(graph);
+
+
+
+
+
+
+
+
 				// Gets the default parent for inserting new cells. This
 				// is normally the first child of the root (ie. layer 0).
 				var parent = graph.getDefaultParent();
@@ -82,25 +89,33 @@
 				var notnul = data.filter(x => x.linked_steps.length !== 0)
 				var i,ii,v=[];
 
+				function text(arr = [], i) {
+					var a = arr[i].url ? arr[i].url : arr[i].command_key
+					return '/' + a
+				}
+
 				try
 				{
 					for(i = 0; i < nul.length; i++){
 						topOffset2 += 40
 						var name = nul[i].step_id;
-						v[name] = graph.insertVertex(parent, null, nul[i].step_id, 320, topOffset2, 80, 30);
+						v[name] = graph.insertVertex(parent, null, nul[i].name, 320, topOffset2, 80, 30);
+						v['label'+name] = graph.insertVertex(v[name], null, text(nul, i), 0.5, 1, 0, 0, null, true);
 					}
 					for(var i = 0; i < notnul.length; i++){
 						topOffset += 80
 						var name = notnul[i].step_id;
-						v[name] = graph.insertVertex(parent, null, notnul[i].step_id, 20, topOffset, 80, 30);
+						v[name] = graph.insertVertex(parent, null, notnul[i].name, 20, topOffset, 80, 30);
+
+						v['label'+name] = graph.insertVertex(v[name], null, text(notnul, i), 0.5, 1, 0, 0, null, true);
+
+						// Arrows enable
 						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
 							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
 						}
 					}
 				}
-				finally
-				{
-					// Updates the display
+				finally{
 					graph.getModel().endUpdate();
 				}
 			}
