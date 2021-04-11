@@ -23,7 +23,7 @@
 		// Program starts here. Creates a sample graph in the
 		// DOM node with the specified ID. This function is invoked
 		// from the onLoad event handler of the document (see below).
-		function main(container)
+		function main(container, data)
 		{
 			// Checks if browser is supported
 			if (!mxClient.isBrowserSupported())
@@ -81,31 +81,40 @@
 				
 				// Load cells and layouts the graph
 				graph.getModel().beginUpdate();
+
+
+
+				var topOffset = 100;
+				var topOffset2 = 30;
+
+				var nul = data.filter(x => x.linked_steps.length === 0).reverse()
+				var notnul = data.filter(x => x.linked_steps.length !== 0)
+				var i,ii,v=[];
+
+				function text(arr = [], i) {
+					var a = arr[i].url ? arr[i].url : arr[i].command_key
+					return '/' + a
+				}
 				try
 				{
-					var v1 = graph.insertVertex(parent, null, '1', 0, 0, 80, 30);
-					var v2 = graph.insertVertex(parent, null, '2', 0, 0, 80, 30);
-					var v3 = graph.insertVertex(parent, null, '3', 0, 0, 80, 30);
-					var v4 = graph.insertVertex(parent, null, '4', 0, 0, 80, 30);
-					var v5 = graph.insertVertex(parent, null, '5', 0, 0, 80, 30);
-					var v6 = graph.insertVertex(parent, null, '6', 0, 0, 80, 30);
-					var v7 = graph.insertVertex(parent, null, '7', 0, 0, 80, 30);
-					var v8 = graph.insertVertex(parent, null, '8', 0, 0, 80, 30);
-					var v9 = graph.insertVertex(parent, null, '9', 0, 0, 80, 30);
+					for(i = 0; i < nul.length; i++){
+						topOffset2 += 40
+						var name = nul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, nul[i].name, 320, topOffset2, 80, 30);
+						v['label'+name] = graph.insertVertex(v[name], null, text(nul, i), 0.5, 1, 0, 0, null, true);
+					}
+					for(var i = 0; i < notnul.length; i++){
+						topOffset += 80
+						var name = notnul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, notnul[i].name, 20, topOffset, 80, 30);
 
-					var e1 = graph.insertEdge(parent, null, '', v1, v2);
-					var e2 = graph.insertEdge(parent, null, '', v1, v3);
-					var e3 = graph.insertEdge(parent, null, '', v3, v4);
-					var e4 = graph.insertEdge(parent, null, '', v2, v5);
-					var e5 = graph.insertEdge(parent, null, '', v1, v6);
-					var e6 = graph.insertEdge(parent, null, '', v2, v3);
-					var e7 = graph.insertEdge(parent, null, '', v6, v4);
-					var e8 = graph.insertEdge(parent, null, '', v6, v1);
-					var e9 = graph.insertEdge(parent, null, '', v6, v7);
-					var e10 = graph.insertEdge(parent, null, '', v7, v8);
-					var e11 = graph.insertEdge(parent, null, '', v7, v9);
-					var e12 = graph.insertEdge(parent, null, '', v7, v6);
-					var e13 = graph.insertEdge(parent, null, '', v7, v5);
+						v['label'+name] = graph.insertVertex(v[name], null, text(notnul, i), 0.5, 1, 0, 0, null, true);
+
+						// Arrows enable
+						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
+							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
+						}
+					}
 					
 					// Executes the layout
 					layout.execute(parent);
@@ -123,11 +132,22 @@
 				}
 			}
 		};
+
+		document.addEventListener("DOMContentLoaded", function () {
+			fetch('https://api.host1.dev.webxid.net/1.0/bots/227/steps?search_at=name&query=&page=1')
+					.then((response) => {
+						return response.json();
+					})
+					.then((data) => {
+						// console.log(data.data);
+						main(document.getElementById('graphContainer'),data.data)
+					});
+		});
 	</script>
 </head>
 
 <!-- Page passes the container for the graph to the program -->
-<body onload="main(document.getElementById('graphContainer'))" style="margin:4px;">
+<body style="margin:4px;">
 
 	<!-- Creates a container for the graph with a grid wallpaper. Make sure to define the position
 		and overflow attributes! See comments on the adding of the size-listener on line 54 ff!  -->
