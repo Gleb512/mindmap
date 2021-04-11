@@ -64,8 +64,6 @@
 
 				// Creates the graph inside the given container
 				var graph = new mxGraph(container);
-
-
 				
 				// Enables rubberband selection
 				new mxRubberband(graph);
@@ -75,29 +73,18 @@
 				var parent = graph.getDefaultParent();
 
 
-
-				// function newArrow(blocks = []){
-				// 	if(!blocks[data[i].linked_steps[ii]]){
-				// 		blocks[data[i].linked_steps[ii]] = {}
-				// 	}
-				// 	return blocks[data[i].linked_steps[ii]]
-				// }
-				//
-
-
-
 				// Adds cells to the model in a single step
 				graph.getModel().beginUpdate();
 				var topOffset = 100;
 				var topOffset2 = 30;
 
-				var nul = data.filter(x => x.linked_steps.length === 0)
+				var nul = data.filter(x => x.linked_steps.length === 0).reverse()
 				var notnul = data.filter(x => x.linked_steps.length !== 0)
-				var i,ii,v=[],e=[];
+				var i,ii,v=[];
 
 				try
 				{
-					for(var i = 0; i < nul.length; i++){
+					for(i = 0; i < nul.length; i++){
 						topOffset2 += 40
 						var name = nul[i].step_id;
 						v[name] = graph.insertVertex(parent, null, nul[i].step_id, 320, topOffset2, 80, 30);
@@ -106,9 +93,7 @@
 						topOffset += 80
 						var name = notnul[i].step_id;
 						v[name] = graph.insertVertex(parent, null, notnul[i].step_id, 20, topOffset, 80, 30);
-
 						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
-							/*parseFloat(notnul[i].linked_steps[ii])*/
 							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
 						}
 					}
@@ -131,7 +116,6 @@
 						// console.log(data.data);
 						main(document.getElementById('graphContainer'),data.data)
 					});
-
 		});
 	</script>
 </head>
