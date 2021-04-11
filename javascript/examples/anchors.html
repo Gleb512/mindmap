@@ -1,0 +1,144 @@
+<!--
+  Copyright (c) 2006-2013, JGraph Ltd
+  
+  Anchors example for mxGraph. This example demonstrates defining
+  fixed connection points for all shapes.
+-->
+<html>
+<head>
+	<title>Anchors example for mxGraph</title>
+	<script type="text/javascript">
+		mxBasePath = '../src';
+	</script>
+	<script type="text/javascript" src="../src/js/mxClient.js"></script>
+	<script type="text/javascript">
+		// Overridden to define per-shape connection points
+		mxGraph.prototype.getAllConnectionConstraints = function(terminal, source){
+			if (terminal != null && terminal.shape != null) {
+				if (terminal.shape.stencil != null){
+					if (terminal.shape.stencil.constraints != null){
+						return terminal.shape.stencil.constraints;
+					}
+				}
+				else if (terminal.shape.constraints != null){
+					return terminal.shape.constraints;
+				}
+			}
+			return null;
+		};
+	
+		// Defines the default constraints for all shapes
+		mxShape.prototype.constraints = [
+				new mxConnectionConstraint(new mxPoint(0.25, 0), true),
+										 new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+										 new mxConnectionConstraint(new mxPoint(0.75, 0), true),
+		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.25), true),
+		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+		        	              		 new mxConnectionConstraint(new mxPoint(0, 0.75), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.25), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(1, 0.75), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(0.25, 1), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+		        	            		 new mxConnectionConstraint(new mxPoint(0.75, 1), true)
+		];
+		
+		// Edges have no connection points
+		mxPolyline.prototype.constraints = null;
+
+		// Program starts here. Creates a sample graph in the
+		// DOM node with the specified ID. This function is invoked
+		// from the onLoad event handler of the document (see below).
+		function main(container, data)
+		{
+			// Checks if the browser is supported
+			if (!mxClient.isBrowserSupported())
+			{
+				// Displays an error message if the browser is not supported.
+				mxUtils.error('Browser is not supported!', 200, false);
+			}
+			else
+			{
+				// Disables the built-in context menu
+				mxEvent.disableContextMenu(container);
+
+				// Creates the graph inside the given container
+				var graph = new mxGraph(container);
+
+
+				
+				// Enables rubberband selection
+				new mxRubberband(graph);
+				
+				// Gets the default parent for inserting new cells. This
+				// is normally the first child of the root (ie. layer 0).
+				var parent = graph.getDefaultParent();
+
+
+
+				// function newArrow(blocks = []){
+				// 	if(!blocks[data[i].linked_steps[ii]]){
+				// 		blocks[data[i].linked_steps[ii]] = {}
+				// 	}
+				// 	return blocks[data[i].linked_steps[ii]]
+				// }
+				//
+
+
+
+				// Adds cells to the model in a single step
+				graph.getModel().beginUpdate();
+				var topOffset = 100;
+				var topOffset2 = 30;
+
+				var nul = data.filter(x => x.linked_steps.length === 0)
+				var notnul = data.filter(x => x.linked_steps.length !== 0)
+				var i,ii,v=[],e=[];
+
+				try
+				{
+					for(var i = 0; i < nul.length; i++){
+						topOffset2 += 40
+						var name = nul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, nul[i].step_id, 320, topOffset2, 80, 30);
+					}
+					for(var i = 0; i < notnul.length; i++){
+						topOffset += 80
+						var name = notnul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, notnul[i].step_id, 20, topOffset, 80, 30);
+
+						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
+							/*parseFloat(notnul[i].linked_steps[ii])*/
+							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
+						}
+					}
+				}
+				finally
+				{
+					// Updates the display
+					graph.getModel().endUpdate();
+				}
+			}
+		};
+
+
+		document.addEventListener("DOMContentLoaded", function () {
+			fetch('https://api.host1.dev.webxid.net/1.0/bots/227/steps?search_at=name&query=&page=1')
+					.then((response) => {
+						return response.json();
+					})
+					.then((data) => {
+						// console.log(data.data);
+						main(document.getElementById('graphContainer'),data.data)
+					});
+
+		});
+	</script>
+</head>
+
+<body onload="">
+	<div id="graphContainer"
+		style="position:relative;overflow:hidden;width:100%;height:100%;background:url('editors/images/grid.gif');cursor:default;">
+	</div>
+</body>
+</html>
