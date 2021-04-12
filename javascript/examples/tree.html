@@ -86,7 +86,7 @@
 		// Program starts here. Creates a sample graph in the
 		// DOM node with the specified ID. This function is invoked
 		// from the onLoad event handler of the document (see below).
-		function main()
+		function main(data)
 		{
 			// Checks if browser is supported
 			if (!mxClient.isBrowserSupported())
@@ -215,40 +215,40 @@
 								
 				// Adds the root vertex of the tree
 				graph.getModel().beginUpdate();
+				var topOffset = 100;
+				var topOffset2 = 30;
+
+				var nul = data.filter(x => x.linked_steps.length === 0)
+				var notnul = data.filter(x => x.linked_steps.length !== 0)
+				var i,ii,v=[];
+
+				function text(arr = [], i) {
+					var a = arr[i].url ? arr[i].url : arr[i].command_key
+					return '/' + a
+				}
 				try
 				{
 					var w = graph.container.offsetWidth;
-					var root = graph.insertVertex(parent, 'treeRoot', 'Root', w/2 - 30, 20, 60, 40);
+					// var root = graph.insertVertex(parent, 'treeRoot', 'Root', w/2 - 30, 20, 60, 40);
 
-					var v1 = graph.insertVertex(parent, 'v1', 'Child 1', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', root, v1);
-					
-					var v2 = graph.insertVertex(parent, 'v2', 'Child 2', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', root, v2);
+					for(i = 0; i < nul.length; i++){
+						topOffset2 += 90
+						var name = nul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, nul[i].name, 320, topOffset2, 80, 30);
+						v['label'+name] = graph.insertVertex(v[name], null, text(nul, i), 0.5, 1, 0, 0, null, true);
+					}
+					for(var i = 0; i < notnul.length; i++){
+						topOffset += 30
+						var name = notnul[i].step_id;
+						v[name] = graph.insertVertex(parent, null, notnul[i].name, 20, topOffset, 80, 30);
 
-					var v3 = graph.insertVertex(parent, 'v3', 'Child 3', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', root, v3);
-					
-					var v11 = graph.insertVertex(parent, 'v11', 'Child 1.1', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v1, v11);
-					
-					var v12 = graph.insertVertex(parent, 'v12', 'Child 1.2', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v1, v12);
-					
-					var v21 = graph.insertVertex(parent, 'v21', 'Child 2.1', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v2, v21);
-					
-					var v22 = graph.insertVertex(parent, 'v22', 'Child 2.2', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v2, v22);
-					
-					var v221 = graph.insertVertex(parent, 'v221', 'Child 2.2.1', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v22, v221);
-					
-					var v222 = graph.insertVertex(parent, 'v222', 'Child 2.2.2', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v22, v222);
+						v['label'+name] = graph.insertVertex(v[name], null, text(notnul, i), 0.5, 1, 0, 0, null, true);
 
-					var v31 = graph.insertVertex(parent, 'v31', 'Child 3.1', 0, 0, 60, 40);
-					graph.insertEdge(parent, null, '', v3, v31);
+						// Arrows enable
+						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
+							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
+						}
+					}
 				}
 				finally
 				{
@@ -278,10 +278,20 @@
 
 			graph.toggleCells(show, cells, true);
 		};
+		document.addEventListener("DOMContentLoaded", function () {
+			fetch('https://api.host1.dev.webxid.net/1.0/bots/227/steps?search_at=name&query=&page=1')
+					.then((response) => {
+						return response.json();
+					})
+					.then((data) => {
+						// console.log(data.data);
+						main(data.data)
+					});
+		});
 	</script>
 </head>
 
 <!-- Calls the main function after the page has loaded. Container is dynamically created. -->
-<body onload="main();">
+<body>
 </body>
 </html>

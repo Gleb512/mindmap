@@ -107,9 +107,11 @@
 						topOffset += 80
 						var name = notnul[i].step_id;
 						v[name] = graph.insertVertex(parent, null, notnul[i].name, 20, topOffset, 80, 30);
-
 						v['label'+name] = graph.insertVertex(v[name], null, text(notnul, i), 0.5, 1, 0, 0, null, true);
-
+					}
+					for(var i = 0; i < notnul.length; i++){
+						topOffset += 80
+						var name = notnul[i].step_id;
 						// Arrows enable
 						for(ii = 0; ii < notnul[i].linked_steps.length; ii++){
 							graph.insertEdge(parent, null, '', v[name], v[parseFloat(notnul[i].linked_steps[ii])]);
